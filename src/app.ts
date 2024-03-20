@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult, Context, Callback } from 'aws-lambda';
-import { postUsersHandler, getUsersHandler, updateUsersHandler, deleteUsersHandler } from './routes';
+import { postUsersHandler, getUsersHandler, updateUsersHandler, deleteUsersHandler, postJournalsHandler, getJournalsHandler, updateJournalsHandler, deleteJournalsHandler } from './routes';
 
 type HttpMethod = 'post' | 'get' | 'put' | 'patch' | 'delete';
 
@@ -9,7 +9,13 @@ const routes: { [key: string]: { [key in HttpMethod]?: APIGatewayProxyHandler } 
     get: getUsersHandler,
     put: updateUsersHandler,
     delete: deleteUsersHandler,
-  }
+  },
+  '/journals': {
+    post: postJournalsHandler,
+    get: getJournalsHandler,
+    put: updateJournalsHandler,
+    delete: deleteJournalsHandler,
+  },
 };
 
 export const handler: APIGatewayProxyHandler = async (

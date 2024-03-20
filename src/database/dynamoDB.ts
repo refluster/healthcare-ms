@@ -7,10 +7,10 @@ import { Journal } from '../models/journal';
 const client = new DynamoDBClient({ region: 'us-west-2' });
 const dynamoDB = DynamoDBDocumentClient.from(client);
 const tableName = 'healhcare-user';
-const EventTableName = 'healthcare-event';
+const JournalTableName = 'healhcare-journal';
 
-export const createEvents = async (itemsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Journal[]> => {
-    const tableName = EventTableName;
+export const createJournals = async (itemsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Journal[]> => {
+    const tableName = JournalTableName;
     const currentUtcIso8601 = new Date().toISOString();
     const items: Journal[] = itemsInput.map(itemInput => {
         const newItem = {
@@ -31,7 +31,7 @@ export const createEvents = async (itemsInput: Omit<Journal, 'id' | 'createdAt' 
     return items;
 };
 
-export const queryEvents = async ({ userId }: { userId?: string }): Promise<User[]> => {
+export const queryJournals = async ({ userId }: { userId?: string }): Promise<Journal[]> => {
     const params = {
         TableName: tableName,
         KeyConditionExpression: "userId = :userId",
@@ -42,8 +42,8 @@ export const queryEvents = async ({ userId }: { userId?: string }): Promise<User
         if (!Items) {
             throw new Error('Failed to query items from DynamoDB');
         }
-        const users = Items as User[];
-        return users;
+        const journals = Items as Journal[];
+        return journals;
     } catch (error: any) {
         console.log("DynamoDB query error:", error.message);
         throw error.message;

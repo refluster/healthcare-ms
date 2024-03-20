@@ -1,19 +1,19 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
-import { createEvents, deleteUsers, queryUsers, updateUsers } from '../database/dynamoDB';
+import { createJournals } from '../database/dynamoDB';
 
-export const postEventsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('create events', event);
-    const eventsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
+    console.log('create journals', event);
+    const journalsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
 
-    if (!eventsInput || eventsInput.length === 0) {
+    if (!journalsInput || journalsInput.length === 0) {
       return errorResponse(400, 'User data is required');
     }
 
-    const newUsers = await createEvents(eventsInput);
-    return successResponse(201, newUsers);
+    const newJournals = await createJournals(journalsInput);
+    return successResponse(201, newJournals);
   } catch (e: any) {
     console.log('ERROR', e.message);
     return successResponse(500, { message: 'Service side error: ' + e.message });

@@ -32,11 +32,14 @@ export const createJournals = async (itemsInput: Omit<Journal, 'id' | 'createdAt
 };
 
 export const queryJournals = async ({ userId }: { userId?: string }): Promise<Journal[]> => {
+    const tableName = JournalTableName;
     const params = {
         TableName: tableName,
+        IndexName: 'byUserid',
         KeyConditionExpression: "userId = :userId",
         ExpressionAttributeValues: { ":userId": userId },
     };
+    console.log(params);
     try {
         const { Items } = await client.send(new QueryCommand(params));
         if (!Items) {

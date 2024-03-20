@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
-import { createJournals } from '../database/dynamoDB';
+import { createJournals, queryJournals } from '../database/dynamoDB';
 
 export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -22,13 +22,13 @@ export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<
 
 export const getJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const queryParameters = event.queryStringParameters || {};
-  const id = queryParameters.id || undefined;
-  if (!id) {
+  const userId = queryParameters.userId || undefined;
+  if (!userId) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
   try {
-    //const works = await queryJournal({ id });
-    return successResponse(201, []);//works);
+    const journals = await queryJournals({ userId });
+    return successResponse(201, journals);
   } catch (e: any) {
     console.log('ERROR', e.message);
     return successResponse(500, { message: 'Service side error: ' + e.message });

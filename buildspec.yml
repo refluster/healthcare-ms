@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-version:
-      nodejs: 18
+      nodejs: 20
     commands:
       - npm i -g yarn
       - yarn

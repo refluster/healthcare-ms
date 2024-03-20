@@ -5,7 +5,6 @@ Description: >
 
   Basic backend service as healthcare-ms
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 5
@@ -14,7 +13,7 @@ Globals:
       - x86_64
 
 Resources:
-  LambdaExecutionRole:
+  HealthcareLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -52,7 +51,7 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-  TaskManagementFunction:
+  HealthcareUserMgmtFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./

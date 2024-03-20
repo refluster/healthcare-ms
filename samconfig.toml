@@ -2,11 +2,11 @@ version = 0.1
 
 [default]
 [default.global.parameters]
-stack_name = "luckyhat-task"
+stack_name = "healthcare-ms"
 
 [default.deploy.parameters]
 resolve_s3 = true
-s3_prefix = "luckyhat-task"
+s3_prefix = "healthcare-ms"
 region = "us-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

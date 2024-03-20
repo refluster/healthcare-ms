@@ -91,6 +91,48 @@ Resources:
         EntryPoints:
           - src/app.ts
 
+  HealthcareEventMgmtFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/app.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HealthcareUserTable
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /events
+            Method: post
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /events
+            Method: get
+        UpdateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /events/{id}
+            Method: put
+        DeleteEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /events/{id}
+            Method: delete
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/app.ts
+
 Outputs:
   HealthcareApiGw:
     Description: 'API Gateway endpoint URL'

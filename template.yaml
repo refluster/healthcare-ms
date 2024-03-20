@@ -128,7 +128,7 @@ Resources:
       Handler: dist/app.handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref HealthcareUserTable
+            TableName: !Ref HealthcareJournalTable
       Events:
         PostJournal:
           Type: Api

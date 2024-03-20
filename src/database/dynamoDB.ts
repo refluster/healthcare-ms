@@ -2,11 +2,53 @@ import { AttributeValue, BatchWriteItemCommand, DynamoDBClient } from '@aws-sdk/
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, UpdateCommand, DeleteCommand, QueryCommandInput, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/user';
-//import { CreateIssueParams, GithubIssue, createIssue, getIssue, updateIssue } from '../lib/github';
+import { Journal } from '../models/journal';
 
 const client = new DynamoDBClient({ region: 'us-west-2' });
 const dynamoDB = DynamoDBDocumentClient.from(client);
 const tableName = 'healhcare-user';
+const EventTableName = 'healthcare-event';
+
+export const createEvents = async (itemsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Journal[]> => {
+    const tableName = EventTableName;
+    const currentUtcIso8601 = new Date().toISOString();
+    const items: Journal[] = itemsInput.map(itemInput => {
+        const newItem = {
+            ...itemInput,
+            id: uuidv4(),
+            createdAt: currentUtcIso8601,
+            updatedAt: currentUtcIso8601,
+        };
+        return newItem;
+    })
+
+    const ddbParams = items.map(item => ({
+        TableName: tableName,
+        Item: item,
+    }));
+    const ddbPutPromise = ddbParams.map(ddbParam => dynamoDB.send(new PutCommand(ddbParam)));
+    const ret = await Promise.all(ddbPutPromise);
+    return items;
+};
+
+export const queryEvents = async ({ userId }: { userId?: string }): Promise<User[]> => {
+    const params = {
+        TableName: tableName,
+        KeyConditionExpression: "userId = :userId",
+        ExpressionAttributeValues: { ":userId": userId },
+    };
+    try {
+        const { Items } = await client.send(new QueryCommand(params));
+        if (!Items) {
+            throw new Error('Failed to query items from DynamoDB');
+        }
+        const users = Items as User[];
+        return users;
+    } catch (error: any) {
+        console.log("DynamoDB query error:", error.message);
+        throw error.message;
+    }
+};
 
 export const createUsers = async (usersInput: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<User[]> => {
     const currentUtcIso8601 = new Date().toISOString();

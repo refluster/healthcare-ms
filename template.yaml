@@ -49,6 +49,36 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
+  HealthcareJournalTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: healhcare-journal
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      GlobalSecondaryIndexes:
+        - IndexName: byUserid
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+
   HealthcareUserMgmtFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -91,7 +121,7 @@ Resources:
         EntryPoints:
           - src/app.ts
 
-  HealthcareEventMgmtFunction:
+  HealthcareJournalMgmtFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
@@ -100,29 +130,29 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref HealthcareUserTable
       Events:
-        PostEvent:
+        PostJournal:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
-            Path: /events
+            Path: /journals
             Method: post
-        GetEvent:
+        GetJournal:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
-            Path: /events
+            Path: /journals
             Method: get
-        UpdateEvent:
+        UpdateJournal:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
-            Path: /events/{id}
+            Path: /journals/{id}
             Method: put
-        DeleteEvent:
+        DeleteJournal:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
-            Path: /events/{id}
+            Path: /journals/{id}
             Method: delete
     Metadata:
       BuildMethod: esbuild

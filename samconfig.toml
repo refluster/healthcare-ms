@@ -1,0 +1,13 @@
+version = 0.1
+
+[default]
+[default.global.parameters]
+stack_name = "luckyhat-task"
+
+[default.deploy.parameters]
+resolve_s3 = true
+s3_prefix = "luckyhat-task"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

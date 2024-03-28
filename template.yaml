@@ -66,18 +66,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      GlobalSecondaryIndexes:
-        - IndexName: byUserid
-          KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-            - AttributeName: date
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
+
 
   HealthcareJournalTable:
     Type: AWS::DynamoDB::Table

@@ -58,7 +58,7 @@ Resources:
           AttributeType: S
         - AttributeName: userId
           AttributeType: S
-        - AttributeName: createdAt
+        - AttributeName: date
           AttributeType: S
       KeySchema:
         - AttributeName: id
@@ -71,7 +71,7 @@ Resources:
           KeySchema:
             - AttributeName: userId
               KeyType: HASH
-            - AttributeName: createdAt
+            - AttributeName: date
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

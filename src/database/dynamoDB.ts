@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/user';
 import { Journal } from '../models/journal';
 import { DailyStat } from '../models/daily';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 const client = new DynamoDBClient({ region: 'us-west-2' });
 const dynamoDB = DynamoDBDocumentClient.from(client);
@@ -263,8 +264,8 @@ export const queryDailyStats = async (query: DailyStatsQueryParam): Promise<Dail
         KeyConditionExpression: "userId = :userId AND #date BETWEEN :startDate AND :endDate",
         ExpressionAttributeValues: {
             ":userId": query.userId,
-            ":startDate": query.startDate,
-            ":endDate": query.endDate,
+            ":startDate": format(startOfDay(query.startDate), 'yyyy-MM-dd'),
+            ":endDate": format(endOfDay(query.endDate), 'yyyy-MM-dd'),
         },
         ExpressionAttributeNames: {
             "#date": "date"

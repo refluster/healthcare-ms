@@ -3,7 +3,7 @@ import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
 import { createDailyStats, createJournals, deleteDailyStats, queryDailyStats, queryJournals } from '../database/dynamoDB';
 import { DailyStat } from '../models/daily';
-import { format } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 import { text2wellness } from '../lib/openai';
 
 type PostInput = {
@@ -12,15 +12,24 @@ type PostInput = {
 
 export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('create daily stats', event);
+    //console.log('create daily stats', event);
     const input: PostInput = JSON.parse(event.body || '{}');
     const userId = input.userId;
-    const date = format(new Date(), 'yyyy-MM-dd');
+    const date = new Date();
+    const startDate = startOfDay(date).toISOString();
+    const endDate = endOfDay(date).toISOString();
 
     if (!userId) {
       return successResponse(400, { message: 'input query parameter is not valid' });
     }
-    const wellness = await text2wellness("今日は天気の良い1日だった。");
+    console.log({userId, startDate, endDate});
+    const journals = await queryJournals({userId, startDate, endDate});
+    const posts = journals
+      .filter(d => d.author === 'user')
+      .map(d => d.content)
+      .join(' ');
+    
+    const wellness = await text2wellness(posts);
     if (!wellness) {
       return successResponse(500, { message: 'wellness cannot be generated.' });
     }
@@ -32,9 +41,9 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
       wellnessSpiritual: wellness.spiritual,
       wellnessFinancial: wellness.financial,
       wellnessIntellectual: wellness.intellectual,
-      date: date,
+      date: format(new Date(), 'yyyy-MM-dd'),
     }
-    await deleteDailyStats({userId, startDate: date, endDate: date});
+    await deleteDailyStats({userId, startDate, endDate});
     const dailyStats = await createDailyStats([_dailyStats]);
     return successResponse(201, dailyStats);
   } catch (e: any) {

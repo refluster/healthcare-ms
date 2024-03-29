@@ -1,8 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
-import { createDailyStats, createJournals, queryDailyStats, queryJournals } from '../database/dynamoDB';
+import { createDailyStats, createJournals, deleteDailyStats, queryDailyStats, queryJournals } from '../database/dynamoDB';
 import { DailyStat } from '../models/daily';
+import { format } from 'date-fns';
 
 type PostInput = {
   userId: string;
@@ -13,6 +14,8 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
     console.log('create daily stats', event);
     const input: PostInput = JSON.parse(event.body || '{}');
     const userId = input.userId;
+    const date = format(new Date(), 'yyyy-MM-dd');
+
     if (!userId) {
       return successResponse(400, { message: 'input query parameter is not valid' });
     }
@@ -24,8 +27,9 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
       wellnessSpiritual: .5,
       wellnessFinancial: .4,
       wellnessIntellectual: .8,
-      date: '2024-03-28',
+      date: date,
     }
+    await deleteDailyStats({userId, startDate: date, endDate: date});
     const dailyStats = await createDailyStats([_dailyStats]);
     return successResponse(201, dailyStats);
   } catch (e: any) {

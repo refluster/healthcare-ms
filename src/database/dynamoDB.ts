@@ -239,12 +239,12 @@ export const createDailyStats = async (itemsInput: Omit<DailyStat, 'id' | 'creat
     return items;
 };
 
-type DailyStatsQuery = {
+type DailyStatsQueryParam = {
     userId: string;
     startDate: string;
     endDate: string;
 }
-export const queryDailyStats = async (query: DailyStatsQuery): Promise<DailyStat[]> => {
+export const queryDailyStats = async (query: DailyStatsQueryParam): Promise<DailyStat[]> => {
     const tableName = dailyStatsTableName;
     const params = {
         TableName: tableName,
@@ -274,3 +274,29 @@ export const queryDailyStats = async (query: DailyStatsQuery): Promise<DailyStat
         throw error.message;
     }
 };
+
+type DailyStatsDeleteParam = {
+    userId: string;
+    startDate: string;
+    endDate: string;
+}
+export const deleteDailyStats = async (query: DailyStatsDeleteParam): Promise<undefined> => {
+    const tableName = dailyStatsTableName;
+    const items = await queryDailyStats(query);
+
+    try {
+        const items = await queryDailyStats(query);
+        for (const item of items) {
+            const deleteCommand = new DeleteCommand({
+                TableName: tableName,
+                Key: {
+                    id: item.id,
+                }
+            });
+            await client.send(deleteCommand);
+        }
+        console.log(`${items.length} items deleted.`);
+    } catch (error) {
+        console.error("Error deleting items:", error);
+    }
+}

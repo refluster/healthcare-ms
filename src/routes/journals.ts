@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
 import { createJournals, queryJournals } from '../database/dynamoDB';
+import { putJournalPostEvent } from '../lib/eventbridge';
 
 export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -13,6 +14,7 @@ export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<
     }
 
     const newJournals = await createJournals(journalsInput);
+    await putJournalPostEvent({userId: newJournals[0].userId, date: newJournals[0].createdAt});
     return successResponse(201, newJournals);
   } catch (e: any) {
     console.log('ERROR', e.message);

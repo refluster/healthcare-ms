@@ -3,11 +3,13 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, UpdateComm
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/user';
 import { Journal } from '../models/journal';
+import { DailyStat } from '../models/daily';
 
 const client = new DynamoDBClient({ region: 'us-west-2' });
 const dynamoDB = DynamoDBDocumentClient.from(client);
 const tableName = 'healhcare-user';
 const JournalTableName = 'healhcare-journal';
+const dailyStatsTableName = 'healhcare-daily-stats';
 
 export const createJournals = async (itemsInput: Omit<Journal, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Journal[]> => {
     const tableName = JournalTableName;
@@ -94,123 +96,176 @@ export const queryUsers = async ({ id }: { id?: string }): Promise<User[]> => {
 };
 
 export const updateUsers = async (usersInput: User[]): Promise<User[]> => {
-/*
-    // query the specified works
-    // create github issue for the qualified works
-    // update works db w/ github issue referrence info
-    const preWorks_arr = await Promise.all(worksInput.map(workInput => queryWorks({ id: workInput.id })));
-    const preWorks = preWorks_arr.flat();
-
-    const githubParamss = await works2githubParams(worksInput);
-
-    const works4GithubUpdate: (Work | undefined)[] = worksInput.map(workInput => {
-        const preWork = preWorks.find(w => w.id === workInput.id);
-        if (workInput.type !== 'task' || preWork === undefined) {
-            return undefined;
-        }
-        if (!preWork.githubIssueNo && workInput.status === 'qualified') {
-            return workInput;
-        } else {
-            return undefined;
-        }
-    });
-    console.log('work4GithubUpdate', JSON.stringify(works4GithubUpdate));
-    const createIssuesPromise = zip(works4GithubUpdate, githubParamss).map(([work, githubParams]) => {
-        if (!work || !githubParams) {
-            return undefined;
-        }
-        const params: CreateIssueParams = {
-            title: work.name,
-            body: work.description,
-            labels: [],
-        };
-        return createIssue(githubParams, params);
-    });
-    const issues: (GithubIssue | undefined)[] = await Promise.all(createIssuesPromise);
-    console.log('issues', JSON.stringify(issues));
-
-    const currentUtcIso8601 = new Date().toISOString();
-    const newWorks = zip(preWorks, issues).map(([preWork, issue]) => {
-        const workInput = <Work>worksInput.find(w => w.id === preWork.id);
-        const newWork = {
-            ...preWork,
-            ...workInput,
-            ... {
-                githubIssueNo: issue?.number,
-                updatedAt: currentUtcIso8601,
+    /*
+        // query the specified works
+        // create github issue for the qualified works
+        // update works db w/ github issue referrence info
+        const preWorks_arr = await Promise.all(worksInput.map(workInput => queryWorks({ id: workInput.id })));
+        const preWorks = preWorks_arr.flat();
+    
+        const githubParamss = await works2githubParams(worksInput);
+    
+        const works4GithubUpdate: (Work | undefined)[] = worksInput.map(workInput => {
+            const preWork = preWorks.find(w => w.id === workInput.id);
+            if (workInput.type !== 'task' || preWork === undefined) {
+                return undefined;
             }
-        }
-        return newWork;
-    });
-
-    const updateParams = newWorks.map(work => {
-        const updateExpression: string[] = [];
-        const expressionAttributeNames: { [key: string]: string } = {};
-        const expressionAttributeValues: { [key: string]: any } = {};
-        for (const key in work) {
-            const workKey = key as keyof Work;
-            if (workKey !== 'id' && work[workKey]) {
-                updateExpression.push(`#${workKey} = :${workKey}`);
-                expressionAttributeNames[`#${workKey}`] = workKey;
-                expressionAttributeValues[`:${workKey}`] = work[workKey];
+            if (!preWork.githubIssueNo && workInput.status === 'qualified') {
+                return workInput;
+            } else {
+                return undefined;
             }
-        }
-        const params = {
-            TableName: tableName,
-            Key: { id: work.id },
-            UpdateExpression: `SET ${updateExpression.join(', ')}`,
-            ExpressionAttributeNames: expressionAttributeNames,
-            ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: 'ALL_NEW' as const,
-        };
-        return params;
-    });
-    const updatePromises = updateParams.map(params => {
-        return client.send(new UpdateCommand(params));
-    });
-    await Promise.all(updatePromises);
-    return newWorks;
-    */
-   return [];
+        });
+        console.log('work4GithubUpdate', JSON.stringify(works4GithubUpdate));
+        const createIssuesPromise = zip(works4GithubUpdate, githubParamss).map(([work, githubParams]) => {
+            if (!work || !githubParams) {
+                return undefined;
+            }
+            const params: CreateIssueParams = {
+                title: work.name,
+                body: work.description,
+                labels: [],
+            };
+            return createIssue(githubParams, params);
+        });
+        const issues: (GithubIssue | undefined)[] = await Promise.all(createIssuesPromise);
+        console.log('issues', JSON.stringify(issues));
+    
+        const currentUtcIso8601 = new Date().toISOString();
+        const newWorks = zip(preWorks, issues).map(([preWork, issue]) => {
+            const workInput = <Work>worksInput.find(w => w.id === preWork.id);
+            const newWork = {
+                ...preWork,
+                ...workInput,
+                ... {
+                    githubIssueNo: issue?.number,
+                    updatedAt: currentUtcIso8601,
+                }
+            }
+            return newWork;
+        });
+    
+        const updateParams = newWorks.map(work => {
+            const updateExpression: string[] = [];
+            const expressionAttributeNames: { [key: string]: string } = {};
+            const expressionAttributeValues: { [key: string]: any } = {};
+            for (const key in work) {
+                const workKey = key as keyof Work;
+                if (workKey !== 'id' && work[workKey]) {
+                    updateExpression.push(`#${workKey} = :${workKey}`);
+                    expressionAttributeNames[`#${workKey}`] = workKey;
+                    expressionAttributeValues[`:${workKey}`] = work[workKey];
+                }
+            }
+            const params = {
+                TableName: tableName,
+                Key: { id: work.id },
+                UpdateExpression: `SET ${updateExpression.join(', ')}`,
+                ExpressionAttributeNames: expressionAttributeNames,
+                ExpressionAttributeValues: expressionAttributeValues,
+                ReturnValues: 'ALL_NEW' as const,
+            };
+            return params;
+        });
+        const updatePromises = updateParams.map(params => {
+            return client.send(new UpdateCommand(params));
+        });
+        await Promise.all(updatePromises);
+        return newWorks;
+        */
+    return [];
 };
 
 export const deleteUsers = async (ids: string[]): Promise<string[]> => {
-/*
-    const preWorks_arr = await Promise.all(ids.map(id => queryWorks({ id: id })));
-    const preWorks = preWorks_arr.flat();
-
-    const githubParamss = await works2githubParams(preWorks);
-
-    const closeGithubIssuesPromise = zip(preWorks, githubParamss)
-        .filter(([work, github]) => work.githubIssueNo && github)
-        .map(([work, github]) => github && updateIssue(github, {
-            issue_number: work.githubIssueNo!,
-            state: 'closed',
-            title: undefined,
-            body: undefined,
-            labels: undefined,
+    /*
+        const preWorks_arr = await Promise.all(ids.map(id => queryWorks({ id: id })));
+        const preWorks = preWorks_arr.flat();
+    
+        const githubParamss = await works2githubParams(preWorks);
+    
+        const closeGithubIssuesPromise = zip(preWorks, githubParamss)
+            .filter(([work, github]) => work.githubIssueNo && github)
+            .map(([work, github]) => github && updateIssue(github, {
+                issue_number: work.githubIssueNo!,
+                state: 'closed',
+                title: undefined,
+                body: undefined,
+                labels: undefined,
+            }));
+        await Promise.all(closeGithubIssuesPromise);
+    
+        const deleteParams = ids.map(id => ({
+            TableName: tableName,
+            Key: { id },
         }));
-    await Promise.all(closeGithubIssuesPromise);
-
-    const deleteParams = ids.map(id => ({
-        TableName: tableName,
-        Key: { id },
-    }));
-    const deletePromise = deleteParams.map(async (params) => {
-        const { Attributes } = await client.send(new DeleteCommand(params));
-        if (Attributes) {
-            return params.Key.id;
-        } else {
-            undefined;
+        const deletePromise = deleteParams.map(async (params) => {
+            const { Attributes } = await client.send(new DeleteCommand(params));
+            if (Attributes) {
+                return params.Key.id;
+            } else {
+                undefined;
+            }
+        });
+        try {
+            const ret = await Promise.all(deletePromise);
+            const deletedIds = <string[]>ret.filter(d => d !== undefined);
+            return deletedIds;
+        } catch {
+            return [];
         }
-    });
+        */
+    return [];
+};
+
+export const createDailyStats = async (itemsInput: Omit<DailyStat, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<DailyStat[]> => {
+    const tableName = dailyStatsTableName;
+    const currentUtcIso8601 = new Date().toISOString();
+    const items: DailyStat[] = itemsInput.map(itemInput => {
+        const newItem = {
+            ...itemInput,
+            id: uuidv4(),
+            createdAt: currentUtcIso8601,
+            updatedAt: currentUtcIso8601,
+        };
+        return newItem;
+    })
+
+    const ddbParams = items.map(item => ({
+        TableName: tableName,
+        Item: item,
+    }));
+    const ddbPutPromise = ddbParams.map(ddbParam => dynamoDB.send(new PutCommand(ddbParam)));
+    const ret = await Promise.all(ddbPutPromise);
+    return items;
+};
+
+export const queryDailyStats = async ({ userId }: { userId?: string }): Promise<DailyStat[]> => {
+    const tableName = dailyStatsTableName;
+    const params = {
+        TableName: tableName,
+        IndexName: 'byUserid',
+        KeyConditionExpression: "userId = :userId AND #date BETWEEN :startDate AND :endDate",
+        ExpressionAttributeValues: {
+            ":userId": userId,
+            ":startDate": "2024-03-28",
+            ":endDate": "2024-03-28"
+        },
+        ExpressionAttributeNames: {
+            "#date": "date"
+        },
+        Limit: 10,
+        ScanIndexForward: false,
+    };
+    console.log(params);
     try {
-        const ret = await Promise.all(deletePromise);
-        const deletedIds = <string[]>ret.filter(d => d !== undefined);
-        return deletedIds;
-    } catch {
-        return [];
+        const { Items } = await client.send(new QueryCommand(params));
+        if (!Items) {
+            throw new Error('Failed to query items from DynamoDB');
+        }
+        const dailyStats = Items as DailyStat[];
+        return dailyStats;
+    } catch (error: any) {
+        console.log("DynamoDB query error:", error.message);
+        throw error.message;
     }
-    */
-   return [];
 };

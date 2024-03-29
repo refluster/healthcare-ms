@@ -239,16 +239,21 @@ export const createDailyStats = async (itemsInput: Omit<DailyStat, 'id' | 'creat
     return items;
 };
 
-export const queryDailyStats = async ({ userId }: { userId?: string }): Promise<DailyStat[]> => {
+type DailyStatsQuery = {
+    userId: string;
+    startDate: string;
+    endDate: string;
+}
+export const queryDailyStats = async (query: DailyStatsQuery): Promise<DailyStat[]> => {
     const tableName = dailyStatsTableName;
     const params = {
         TableName: tableName,
         IndexName: 'byUserid',
         KeyConditionExpression: "userId = :userId AND #date BETWEEN :startDate AND :endDate",
         ExpressionAttributeValues: {
-            ":userId": userId,
-            ":startDate": "2024-03-28",
-            ":endDate": "2024-03-28"
+            ":userId": query.userId,
+            ":startDate": query.startDate,
+            ":endDate": query.endDate,
         },
         ExpressionAttributeNames: {
             "#date": "date"

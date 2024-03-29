@@ -36,12 +36,14 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
 
 export const getDailyStatsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const queryParameters = event.queryStringParameters || {};
-  const userId = queryParameters.userId || undefined;
-  if (!userId) {
+  const userId = queryParameters.userId;
+  const startDate = queryParameters.startDate;
+  const endDate = queryParameters.endDate;
+  if (!userId || !startDate || !endDate) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
   try {
-    const journals = await queryDailyStats({ userId });
+    const journals = await queryDailyStats({ userId, startDate, endDate });
     return successResponse(201, journals);
   } catch (e: any) {
     console.log('ERROR', e.message);

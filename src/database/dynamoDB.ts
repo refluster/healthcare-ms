@@ -49,7 +49,7 @@ export const queryJournals = async (query: JournalQueryParams): Promise<Journal[
             ":startDate": query.startDate || '2000-01-01T00:00:00.000Z',
             ":endDate": query.endDate || '2100-01-01T00:00:00.000Z',
         },
-        Limit: 10,
+        Limit: 12,
         ScanIndexForward: false,
     };
     console.log(params);
@@ -269,7 +269,7 @@ export const queryDailyStats = async (query: DailyStatsQueryParam): Promise<Dail
         ExpressionAttributeNames: {
             "#date": "date"
         },
-        Limit: 10,
+        Limit: 12,
         ScanIndexForward: false,
     };
     console.log(params);

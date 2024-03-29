@@ -4,6 +4,7 @@ import { Journal } from '../models/journal';
 import { createDailyStats, createJournals, deleteDailyStats, queryDailyStats, queryJournals } from '../database/dynamoDB';
 import { DailyStat } from '../models/daily';
 import { format } from 'date-fns';
+import { text2wellness } from '../lib/openai';
 
 type PostInput = {
   userId: string;
@@ -19,14 +20,18 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
     if (!userId) {
       return successResponse(400, { message: 'input query parameter is not valid' });
     }
+    const wellness = await text2wellness("今日は天気の良い1日だった。");
+    if (!wellness) {
+      return successResponse(500, { message: 'wellness cannot be generated.' });
+    }
     const _dailyStats = {
       userId: userId,
-      wellnessEmotional: .3,
-      wellnessPhysical: .2,
-      wellnessSocial: .7,
-      wellnessSpiritual: .5,
-      wellnessFinancial: .4,
-      wellnessIntellectual: .8,
+      wellnessEmotional: wellness.emotional,
+      wellnessPhysical: wellness.physical,
+      wellnessSocial: wellness.social,
+      wellnessSpiritual: wellness.spiritual,
+      wellnessFinancial: wellness.financial,
+      wellnessIntellectual: wellness.intellectual,
       date: date,
     }
     await deleteDailyStats({userId, startDate: date, endDate: date});

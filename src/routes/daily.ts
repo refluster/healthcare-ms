@@ -8,6 +8,7 @@ import { text2wellness } from '../lib/openai';
 
 type PostInput = {
   userId: string;
+  date?: string;
 };
 
 export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -15,14 +16,13 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
     //console.log('create daily stats', event);
     const input: PostInput = JSON.parse(event.body || '{}');
     const userId = input.userId;
-    const date = new Date();
+    const date = input.date? new Date(input.date): new Date();
     const startDate = startOfDay(date).toISOString();
     const endDate = endOfDay(date).toISOString();
 
     if (!userId) {
       return successResponse(400, { message: 'input query parameter is not valid' });
     }
-    console.log({userId, startDate, endDate});
     const journals = await queryJournals({userId, startDate, endDate});
     const posts = journals
       .filter(d => d.author === 'user')
@@ -41,7 +41,7 @@ export const postDailyStatsHandler = async (event: APIGatewayProxyEvent): Promis
       wellnessSpiritual: wellness.spiritual,
       wellnessFinancial: wellness.financial,
       wellnessIntellectual: wellness.intellectual,
-      date: format(new Date(), 'yyyy-MM-dd'),
+      date: format(date, 'yyyy-MM-dd'),
     }
     await deleteDailyStats({userId, startDate, endDate});
     const dailyStats = await createDailyStats([_dailyStats]);

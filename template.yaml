@@ -25,6 +25,10 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
+          - Effect: Allow
+            Resource: '*'
+            Action:
+              - events:PutEvents
 
   HealthcareApiGw:
     Type: AWS::Serverless::Api

@@ -33,13 +33,24 @@ export const createJournals = async (itemsInput: Omit<Journal, 'id' | 'createdAt
     return items;
 };
 
-export const queryJournals = async ({ userId }: { userId?: string }): Promise<Journal[]> => {
+type JournalQueryParams = {
+    userId: string;
+    startDate?: string;
+    endDate?: string;
+}
+export const queryJournals = async (query: JournalQueryParams): Promise<Journal[]> => {
     const tableName = JournalTableName;
     const params = {
         TableName: tableName,
         IndexName: 'byUserid',
-        KeyConditionExpression: "userId = :userId",
-        ExpressionAttributeValues: { ":userId": userId },
+        KeyConditionExpression: "userId = :userId AND createdAt BETWEEN :startDate AND :endDate",
+        ExpressionAttributeValues: {
+            ":userId": query.userId,
+            ":startDate": query.startDate || '2000-01-01T00:00:00.000Z',
+            ":endDate": query.endDate || '2100-01-01T00:00:00.000Z',
+        },
+        Limit: 10,
+        ScanIndexForward: false,
     };
     console.log(params);
     try {

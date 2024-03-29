@@ -23,11 +23,13 @@ export const postJournalsHandler = async (event: APIGatewayProxyEvent): Promise<
 export const getJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const queryParameters = event.queryStringParameters || {};
   const userId = queryParameters.userId || undefined;
+  const startDate = queryParameters.startDate || undefined;
+  const endDate = queryParameters.endDate || undefined;
   if (!userId) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
   try {
-    const journals = await queryJournals({ userId });
+    const journals = await queryJournals({ userId, startDate, endDate });
     return successResponse(201, journals);
   } catch (e: any) {
     console.log('ERROR', e.message);

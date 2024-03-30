@@ -37,6 +37,37 @@ const wellnessApps: AppDef[] = [
                 ]
             }
         }
+    }, {
+        appId: 'heart-health',
+        appContent: 'あなたは、与えられた人の行動や情動に対して、広義の意味で健康になる助言を3つフィードバックします。その際、この人の行動や情動をとてもよく観察した上で、ウェルネスを高め、生きがい、やる気、自己達成感、満足感、などを効果的に高める厳選されたワードが重要です。',
+        function: {
+            "name": "heart-health",
+            "description": "より高いWellnessの獲得に向けたアドバイスを提供します。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "advice": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "type": "string",
+                                    "description": "アドバイスの要約を、人の目を惹きつける魅力的な内容で表現します。もっと知りたい、知った上で試してみたいと思えるようなタイトルです。"
+                                },
+                                "content": {
+                                    "type": "string",
+                                    "description": "具体的なアドバイスを表現します。"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "advice"
+                ]
+            }
+        }
     }
 ];
 

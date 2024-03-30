@@ -97,6 +97,7 @@ export const text2wellness = async (message: string) => {
 type WellnessAppParams = {
     systemContent: string;
     userContent: string;
+    function: any;
 }
 
 export const text2wellnessApp = async (param: WellnessAppParams) => {
@@ -111,13 +112,13 @@ export const text2wellnessApp = async (param: WellnessAppParams) => {
             "tools": [
                 {
                     "type": "function",
-                    "function": wellnessAppBankTransaction
+                    "function": param.function,
                 }
             ],
             "tool_choice": {
                 "type": "function",
                 "function": {
-                    "name": wellnessAppBankTransaction.name,
+                    "name": param.function.name,
                 }
             },
         };

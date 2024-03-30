@@ -41,9 +41,11 @@ export const runAppHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
       return successResponse(400, { message: 'appId is not valid' });
     }
     const appContent = appDef.appContent;
-    const content = baseContent + appContent;
-
-    const appRes = await text2wellnessApp({ systemContent: content, userContent: param.message })
+    const appRes = await text2wellnessApp({
+      systemContent: baseContent + appContent,
+      userContent: param.message,
+      function: appDef.function,
+    })
     return successResponse(201, { apps: [appRes] });
   } catch (e: any) {
     console.log('ERROR', e.message);

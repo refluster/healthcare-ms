@@ -94,6 +94,54 @@ export const text2wellness = async (message: string) => {
     }
 }
 
+type WellnessAppParams = {
+    systemContent: string;
+    userContent: string;
+}
+
+export const text2wellnessApp = async (param: WellnessAppParams) => {
+    const messages: ChatRequestMessage[] = (() => {
+        return [
+            { "role": "system", "content": param.systemContent },
+            { "role": "user", "content": param.userContent },
+        ];
+    })();
+    const options: GetChatCompletionsOptions | undefined = (() => {
+        return {
+            "tools": [
+                {
+                    "type": "function",
+                    "function": wellnessAppBankTransaction
+                }
+            ],
+            "tool_choice": {
+                "type": "function",
+                "function": {
+                    "name": wellnessAppBankTransaction.name,
+                }
+            },
+        };
+    })();
+    const result = await client.getChatCompletions(
+        deploymentId, messages, options,
+    );
+    for (const choice of result.choices) {
+        console.log('message', choice.message);
+    }
+    if (result.choices[0].message?.content) {
+        return {
+            message: result.choices[0].message.content,
+        };
+    } else if (result.choices[0].message?.toolCalls) {
+        const fn = result.choices[0].message?.toolCalls[0].function;
+        return {
+            [fn.name]: JSON.parse(fn.arguments),
+        }
+    } else {
+        return undefined;
+    }
+}
+
 const wellness = {
     "name": "wellness",
     "description": "Visualize how the person is in well status using 6 dimension of wellness defined by wellness wheel by giving value for each dimension as real number",
@@ -132,6 +180,35 @@ const wellness = {
             "financial",
             "intellectual",
             "social"
+        ]
+    }
+};
+
+const wellnessAppBankTransaction = {
+    "name": "bank-transaction",
+    "description": "より高いWellnessの獲得に向けたアドバイスを提供します。",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "advice": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "アドバイスの要約を、人の目を惹きつける魅力的な内容で表現します。もっと知りたい、知った上で試してみたいと思えるようなタイトルです。"
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "具体的なアドバイスを表現します。"
+                        }
+                    }
+                }
+            }
+        },
+        "required": [
+            "advice"
         ]
     }
 };

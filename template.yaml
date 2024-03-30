@@ -7,7 +7,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 10
+    Timeout: 20
     Runtime: nodejs20.x
     Architectures:
       - x86_64
@@ -224,6 +224,34 @@ Resources:
             RestApiId: !Ref HealthcareApiGw
             Path: /daily
             Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/app.ts
+
+  HealthcareAppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/app.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HealthcareJournalTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HealthcareDailyTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HealthcareJournalTable
+      Events:
+        RunApp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /app/run
+            Method: post
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

@@ -25,10 +25,6 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
-          - Effect: Allow
-            Resource: '*'
-            Action:
-              - events:PutEvents
 
   HealthcareApiGw:
     Type: AWS::Serverless::Api
@@ -163,6 +159,12 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref HealthcareJournalTable
+        - Statement:
+          - Effect: Allow
+            Resource: '*'
+            Action:
+              - events:PutEvents      
+
       Events:
         PostJournal:
           Type: Api

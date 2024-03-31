@@ -24,7 +24,7 @@ const wellnessApps: AppDef[] = [
                                     "type": "string",
                                     "description": "アドバイスの要約を、人の目を惹きつける魅力的な内容で表現します。もっと知りたい、知った上で試してみたいと思えるようなタイトルです。"
                                 },
-                                "comment": {
+                                "content": {
                                     "type": "string",
                                     "description": "具体的なアドバイスを表現します。"
                                 }
@@ -51,7 +51,7 @@ const wellnessApps: AppDef[] = [
                         "items": {
                             "type": "object",
                             "properties": {
-                                "comment": {
+                                "content": {
                                     "type": "string",
                                     "description": "12個の質問の予測回答を元に、より高いWellbeingに向けて100文字程度でコメントする。"
                                 },
@@ -86,7 +86,7 @@ const wellnessApps: AppDef[] = [
                                     "type": "string",
                                     "description": "アドバイスの要約を、人の目を惹きつける魅力的な内容で表現します。もっと知りたい、知った上で試してみたいと思えるようなタイトルです。"
                                 },
-                                "comment": {
+                                "content": {
                                     "type": "string",
                                     "description": "具体的なアドバイスを表現します。"
                                 }

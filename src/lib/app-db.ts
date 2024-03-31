@@ -51,7 +51,7 @@ const wellnessApps: AppDef[] = [
                         "items": {
                             "type": "object",
                             "properties": {
-                                "comment": {
+                                "content": {
                                     "type": "string",
                                     "description": "12個の質問の予測回答を元に、より高いWellbeingに向けて100文字程度でコメントする。"
                                 },

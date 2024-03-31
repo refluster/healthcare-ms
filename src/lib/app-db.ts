@@ -38,6 +38,30 @@ const wellnessApps: AppDef[] = [
             }
         }
     }, {
+        appId: 'financial-wellbeing',
+        appContent: 'USのConsumer Financial Protection Bureauが開発したFinancial Well-being Scale（https://files.consumerfinance.gov/f/documents/bcfp_fin-well-being_full-scorecard.pdf）を使って、ユーザの資産管理における健康度合いを計測する。合計、12個の質問の回答を推測し、Financial Well-being scoreを算出する。',
+        function: {
+            "name": "financial-wellbeing",
+            "description": "USのConsumer Financial Protection Bureauが開発したFinancial Well-being Scaleで評価する。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "comment": {
+                        "type": "string",
+                        "description": "12個の質問の予測回答を元に、より高いWellbeingに向けて100文字程度でコメントする。"
+                    },
+                    "score": {
+                        "type": "number",
+                        "description": "12個の質問の回答を予測し、Financial Well-being Scoreを割り出して回答する。"
+                    }
+                },
+                "required": [
+                    "comment",
+                    "score"
+                ]
+            }
+        }
+    }, {
         appId: 'heart-health',
         appContent: 'あなたは、与えられた人の行動や情動に対して、広義の意味で健康になる助言を3つフィードバックします。その際、この人の行動や情動をとてもよく観察した上で、ウェルネスを高め、生きがい、やる気、自己達成感、満足感、などを効果的に高める厳選されたワードが重要です。',
         function: {

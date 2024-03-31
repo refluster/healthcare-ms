@@ -54,11 +54,10 @@ export const text2wellness = async (message: string) => {
             role: 'system',
             content: [
                 'あなたはコンシューマ寄りのヘルスケアやウェルネスの化学的知識に精通しています。',
-                '科学的知識は以下ページを根拠に、定量化します。https://www.linkedin.com/pulse/6-dimensions-wellness-how-help-workplace-char-olivia-hamilton',
+                '科学的知識は以下ページを根拠に、定量化します（https://www.linkedin.com/pulse/6-dimensions-wellness-how-help-workplace-char-olivia-hamilton）。',
                 '与えられたコンディションをもとに、Wellness wheelの6感情を0.0から1.0のグラフで視覚化もできます。',
             ].join('')
-        },
-        {
+        }, {
             role: 'user',
             content: message
         },

@@ -57,7 +57,7 @@ const wellnessApps: AppDef[] = [
                                 },
                                 "score": {
                                     "type": "number",
-                                    "description": "12個の質問の回答を予測し、各々のスコアの合計値（結果は0から91）でFinancial Well-being Scoreを割り出して回答する。",
+                                    "description": "Financial Well-being Scoreの値（0から91）。12個の質問の回答を予測し、各々のスコアの合計値。",
                                 }
                             }
                         }

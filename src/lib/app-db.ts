@@ -46,18 +46,25 @@ const wellnessApps: AppDef[] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "comment": {
-                        "type": "string",
-                        "description": "12個の質問の予測回答を元に、より高いWellbeingに向けて100文字程度でコメントする。"
-                    },
-                    "score": {
-                        "type": "number",
-                        "description": "12個の質問の回答を予測し、各々のスコアの合計値（結果は0から91）でFinancial Well-being Scoreを割り出して回答する。",
+                    "advice": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "comment": {
+                                    "type": "string",
+                                    "description": "12個の質問の予測回答を元に、より高いWellbeingに向けて100文字程度でコメントする。"
+                                },
+                                "score": {
+                                    "type": "number",
+                                    "description": "12個の質問の回答を予測し、各々のスコアの合計値（結果は0から91）でFinancial Well-being Scoreを割り出して回答する。",
+                                }
+                            }
+                        }
                     }
                 },
                 "required": [
-                    "comment",
-                    "score"
+                    "advice",
                 ]
             }
         }

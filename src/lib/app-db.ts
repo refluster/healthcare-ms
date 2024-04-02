@@ -27,7 +27,8 @@ const wellnessApps: AppDef[] = [
                     }
                 },
                 "required": [
-                    "advice"
+                    "title",
+                    "content"
                 ]
             }
         }
@@ -51,7 +52,8 @@ const wellnessApps: AppDef[] = [
                     }
                 },
                 "required": [
-                    "advice",
+                    "content",
+                    "score"
                 ]
             }
         }
@@ -75,7 +77,8 @@ const wellnessApps: AppDef[] = [
                     }
                 },
                 "required": [
-                    "advice"
+                    "title",
+                    "content"
                 ]
             }
         }

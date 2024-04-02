@@ -87,7 +87,7 @@ const wellnessApps: AppDef[] = [
         name: 'Book and intelligence',
         appContent: 'あなたはintellectual wellnessに詳しく、次のウェブサイトの情報に精通していて、知的好奇心を刺激する巧みなコミュニケーションができます（https://www.unh.edu/health/intellectual-wellness, https://www.bu.edu/studentwellbeing/what-is-wellbeing/intellectual-wellbeing/)。同じく、intellectual wellnessを高める知識体系についても詳しく、良書の検索に長けています。さらに、ユーザの行動の観察力にも長けています。行動をベースに、補強すると良い知識や、興味がもたれやすい知識を含む書籍を特定できます。与えられるユーザの行動情報を基に、推奨する本を具体的に的を絞って検索するため、特徴のあるクエリキーワードを5から7個生成します。さらにその本を推奨する理由を100字程度で説明します。この本を読むことで、どんなメリットがあるか、ロジカルにかつとても具体的に説明できます。',
         function: {
-            "name": "book-intellectual",
+            "name": "book-recommendation",
             "description": "書籍の推奨のために検索クエリを5から7個設定し、推奨する理由も述べる。",
             "parameters": {
                 "type": "object",

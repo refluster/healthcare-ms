@@ -49,6 +49,20 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
+  HealthcareAppTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: healhcare-app
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
   HealthcareDailyTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -124,6 +138,12 @@ Resources:
             RestApiId: !Ref HealthcareApiGw
             Path: /users
             Method: post
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /users
+            Method: get
         GetUser:
           Type: Api
           Properties:
@@ -240,11 +260,7 @@ Resources:
       Handler: dist/app.handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref HealthcareJournalTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref HealthcareDailyTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref HealthcareJournalTable
+            TableName: !Ref HealthcareAppTable
       Events:
         RunApp:
           Type: Api
@@ -252,6 +268,36 @@ Resources:
             RestApiId: !Ref HealthcareApiGw
             Path: /app/run
             Method: post
+        PostApp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /apps
+            Method: post
+        GetApps:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /apps
+            Method: get
+        GetApp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /apps/{id}
+            Method: get
+        UpdateApp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /apps/{id}
+            Method: put
+        DeleteApp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HealthcareApiGw
+            Path: /apps/{id}
+            Method: delete
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

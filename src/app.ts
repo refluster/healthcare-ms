@@ -7,7 +7,7 @@ const routes: { [key: string]: { [key in HttpMethod]?: APIGatewayProxyHandler } 
   '/users': {
     post: postUsersHandler,
     get: getUsersHandler,
-    put: patchUsersHandler,
+    patch: patchUsersHandler,
     delete: deleteUsersHandler,
   },
   '/users/{id}': {

@@ -154,7 +154,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
-            Path: /users/{id}
+            Path: /users
             Method: patch
         DeleteUser:
           Type: Api

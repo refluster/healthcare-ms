@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { User } from '../models/user';
-import { createUsers, deleteUsers, queryUsers, updateUsers } from '../database/dynamoDB';
+import { createUsers, deleteUsers, patchUsers, queryUsers } from '../database/dynamoDB';
 
 export const postUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -24,7 +24,7 @@ export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIG
   const queryParameters = event.queryStringParameters || {};
   const id = queryParameters.userId || undefined;
   if (!id) {
-    return successResponse(400, { message: 'input query parameter is not valid' });
+    return successResponse(400, { message: '"userId" is required as a query parameter' });
   }
   try {
     const works = await queryUsers({ id });
@@ -36,41 +36,37 @@ export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIG
 };
 
 export const patchUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-/*
   try {
-    console.log('patch users', event);
-    const worksInput: Work[] = JSON.parse(event.body || '{}');  // Assume Work type includes 'id', 'createdAt', and 'updatedAt'
+    const usersInput: Omit<User, 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
 
-    if (!worksInput || worksInput.length === 0) {
-      return errorResponse(400, 'Work data is required');
+    if (!Array.isArray(usersInput) || usersInput.length === 0) {
+      return errorResponse(400, 'User data array is required in the request body');
     }
 
-    const updatedWorks = await updateWorks(worksInput);
-    return successResponse(200, updatedWorks);
+    const users = await patchUsers(usersInput);
+    return successResponse(200, users);
   } catch (e: any) {
     console.log('ERROR', e.message);
-    return errorResponse(500, 'Service side error: ' + e.message);
+    return errorResponse(500, 'Server side error: ' + e.message);
   }
-*/
-  return successResponse(200, {});
-};
+}
 
 export const deleteUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-/*
-  try {
-    console.log('delete works', event);
-    const queryStringParameters = event.queryStringParameters || {};
-    const idParam = queryStringParameters.id || '';
-    const ids = idParam.split(',');
-    if (ids.length === 0) {
-      return successResponse(400, { message: 'input query parameter is not valid' });
+  /*
+    try {
+      console.log('delete works', event);
+      const queryStringParameters = event.queryStringParameters || {};
+      const idParam = queryStringParameters.id || '';
+      const ids = idParam.split(',');
+      if (ids.length === 0) {
+        return successResponse(400, { message: 'input query parameter is not valid' });
+      }
+      const deletedIds = await deleteWorks(ids);
+      return successResponse(200, ids);
+    } catch (e: any) {
+      console.log('ERROR', e.message);
+      return successResponse(500, { message: 'Service side error: ' + e.message });
     }
-    const deletedIds = await deleteWorks(ids);
-    return successResponse(200, ids);
-  } catch (e: any) {
-    console.log('ERROR', e.message);
-    return successResponse(500, { message: 'Service side error: ' + e.message });
-  }
-*/
+  */
   return successResponse(200, {});
 };

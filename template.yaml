@@ -150,12 +150,12 @@ Resources:
             RestApiId: !Ref HealthcareApiGw
             Path: /users/{id}
             Method: get
-        UpdateUser:
+        PatchUser:
           Type: Api
           Properties:
             RestApiId: !Ref HealthcareApiGw
             Path: /users/{id}
-            Method: put
+            Method: patch
         DeleteUser:
           Type: Api
           Properties:

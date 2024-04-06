@@ -5,7 +5,7 @@ import { createUsers, deleteUsers, queryUsers, updateUsers } from '../database/d
 
 export const postUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('create works', event);
+    console.log('create users', event);
     const usersInput: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
 
     if (!usersInput || usersInput.length === 0) {
@@ -22,7 +22,7 @@ export const postUsersHandler = async (event: APIGatewayProxyEvent): Promise<API
 
 export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const queryParameters = event.queryStringParameters || {};
-  const id = queryParameters.id || undefined;
+  const id = queryParameters.userId || undefined;
   if (!id) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
@@ -35,10 +35,10 @@ export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIG
   }
 };
 
-export const updateUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const patchUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 /*
   try {
-    console.log('update works', event);
+    console.log('patch users', event);
     const worksInput: Work[] = JSON.parse(event.body || '{}');  // Assume Work type includes 'id', 'createdAt', and 'updatedAt'
 
     if (!worksInput || worksInput.length === 0) {

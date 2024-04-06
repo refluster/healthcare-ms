@@ -84,8 +84,13 @@ export const createUsers = async (usersInput: Omit<User, 'id' | 'createdAt' | 'u
         TableName: tableName,
         Item: user,
     }));
-    const ddbPutPromise = ddbParams.map(ddbParam => dynamoDB.send(new PutCommand(ddbParam)));
-    const ret = await Promise.all(ddbPutPromise);
+    try {
+        const ddbPutPromise = ddbParams.map(ddbParam => dynamoDB.send(new PutCommand(ddbParam)));
+        const ret = await Promise.all(ddbPutPromise);
+    } catch (error: any) {
+        console.log("DynamoDB create user error:", error.message);
+        throw error.message;
+    }
     return users;
 };
 
@@ -115,19 +120,6 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
 
     const promises = usersInput.map(userInput => {
         const updateCommand = new UpdateCommand({
-            TableName: tableName,
-            Key: { id: userInput.id },
-            UpdateExpression: 'set #profileText = :profileText, updatedAt = :updatedAt',
-            ExpressionAttributeNames: {
-                '#profileText': 'profileText',
-            },
-            ExpressionAttributeValues: {
-                ':profileText': userInput.profileText,
-                ':updatedAt': currentUtcIso8601,
-            },
-            ReturnValues: 'ALL_NEW',
-        });
-        console.log({
             TableName: tableName,
             Key: { id: userInput.id },
             UpdateExpression: 'set #profileText = :profileText, updatedAt = :updatedAt',

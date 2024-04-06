@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, UpdateCommand, DeleteCommand, QueryCommandInput, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, UpdateCommand, DeleteCommand, QueryCommandInput, QueryCommand, UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/user';
 import { Journal } from '../models/journal';
@@ -118,22 +118,22 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
     const tableName = UsertableName;
     const currentUtcIso8601 = new Date().toISOString();
 
-    const promises = usersInput.map(userInput => {
-        const updateCommand = new UpdateCommand({
-            TableName: tableName,
-            Key: { id: userInput.id },
-            UpdateExpression: 'set #profileText = :profileText, updatedAt = :updatedAt',
-            ExpressionAttributeNames: {
-                '#profileText': 'profileText',
-            },
-            ExpressionAttributeValues: {
-                ':profileText': userInput.profileText,
-                ':updatedAt': currentUtcIso8601,
-            },
-            ReturnValues: 'ALL_NEW',
-        });
-        return dynamoDB.send(updateCommand).then(response => response.Attributes);
-    });
+    const commandsInput = usersInput.map(userInput => ({
+        TableName: tableName,
+        Key: { id: userInput.id },
+        UpdateExpression: 'set #profileText = :profileText, updatedAt = :updatedAt',
+        ExpressionAttributeNames: {
+            '#profileText': 'profileText',
+        },
+        ExpressionAttributeValues: {
+            ':profileText': userInput.profileText,
+            ':updatedAt': currentUtcIso8601,
+        },
+        ReturnValues: 'ALL_NEW',
+    } as UpdateCommandInput));
+    const promises = commandsInput
+        .map(commandInput => new UpdateCommand(commandInput))
+        .map(command => dynamoDB.send(command).then(response => response.Attributes))
     const updatedUsers = await Promise.all(promises);
     return updatedUsers.filter(user => user !== null) as User[];
 };

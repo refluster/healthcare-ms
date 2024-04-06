@@ -138,45 +138,24 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
     return updatedUsers.filter(user => user !== null) as User[];
 };
 
-export const deleteUsers = async (ids: string[]): Promise<string[]> => {
-    /*
-        const preWorks_arr = await Promise.all(ids.map(id => queryWorks({ id: id })));
-        const preWorks = preWorks_arr.flat();
-    
-        const githubParamss = await works2githubParams(preWorks);
-    
-        const closeGithubIssuesPromise = zip(preWorks, githubParamss)
-            .filter(([work, github]) => work.githubIssueNo && github)
-            .map(([work, github]) => github && updateIssue(github, {
-                issue_number: work.githubIssueNo!,
-                state: 'closed',
-                title: undefined,
-                body: undefined,
-                labels: undefined,
-            }));
-        await Promise.all(closeGithubIssuesPromise);
-    
-        const deleteParams = ids.map(id => ({
+export const deleteUsers = async (users: Pick<User, 'id'>[]): Promise<string[]> => {
+    const tableName = UsertableName;
+    const promises = users.map(user => {
+        const commandInput = {
             TableName: tableName,
-            Key: { id },
-        }));
-        const deletePromise = deleteParams.map(async (params) => {
-            const { Attributes } = await client.send(new DeleteCommand(params));
-            if (Attributes) {
-                return params.Key.id;
-            } else {
-                undefined;
-            }
-        });
-        try {
-            const ret = await Promise.all(deletePromise);
-            const deletedIds = <string[]>ret.filter(d => d !== undefined);
-            return deletedIds;
-        } catch {
-            return [];
-        }
-        */
-    return [];
+            Key: { id: user.id },
+        };
+
+        return dynamoDB.send(new DeleteCommand(commandInput))
+            .then(() => user.id)
+            .catch(error => {
+                console.error("Delete error for user ID:", user.id, error);
+                return null;
+            });
+    });
+
+    const deletedUserIds = await Promise.all(promises);
+    return deletedUserIds.filter(userId => userId !== null) as string[];
 };
 
 export const createDailyStats = async (itemsInput: Omit<DailyStat, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<DailyStat[]> => {

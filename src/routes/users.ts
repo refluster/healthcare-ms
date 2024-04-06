@@ -52,21 +52,19 @@ export const patchUsersHandler = async (event: APIGatewayProxyEvent): Promise<AP
 }
 
 export const deleteUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  /*
-    try {
-      console.log('delete works', event);
-      const queryStringParameters = event.queryStringParameters || {};
-      const idParam = queryStringParameters.id || '';
-      const ids = idParam.split(',');
-      if (ids.length === 0) {
-        return successResponse(400, { message: 'input query parameter is not valid' });
-      }
-      const deletedIds = await deleteWorks(ids);
-      return successResponse(200, ids);
-    } catch (e: any) {
-      console.log('ERROR', e.message);
-      return successResponse(500, { message: 'Service side error: ' + e.message });
+  try {
+    const userId = event.pathParameters?.id;
+    //const usersInput: Pick<User, 'id'>[] = JSON.parse(event.body || '{}');
+
+    if (!userId === undefined) {
+      return errorResponse(400, 'User ID is required.');
     }
-  */
+
+    const users = await deleteUsers([{id: userId as string}]);
+    return successResponse(200, users);
+  } catch (e: any) {
+    console.log('ERROR', e.message);
+    return errorResponse(500, 'Server side error: ' + e.message);
+  }
   return successResponse(200, {});
 };

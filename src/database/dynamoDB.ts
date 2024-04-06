@@ -140,20 +140,19 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
 
 export const deleteUsers = async (users: Pick<User, 'id'>[]): Promise<string[]> => {
     const tableName = UsertableName;
-    const promises = users.map(user => {
-        const commandInput = {
-            TableName: tableName,
-            Key: { id: user.id },
-        };
-
-        return dynamoDB.send(new DeleteCommand(commandInput))
-            .then(() => user.id)
+    const commandsInput = users.map(user => ({
+        TableName: tableName,
+        Key: { id: user.id },
+    }));
+    const promises = commandsInput
+        .map(commandInput => new DeleteCommand(commandInput))
+        .map(command => dynamoDB.send(command)
+            .then(() => command.input.Key?.id)
             .catch(error => {
-                console.error("Delete error for user ID:", user.id, error);
+                console.error("Delete error for user ID:", command.input.Key?.id, error);
                 return null;
-            });
-    });
-
+            })
+        )
     const deletedUserIds = await Promise.all(promises);
     return deletedUserIds.filter(userId => userId !== null) as string[];
 };

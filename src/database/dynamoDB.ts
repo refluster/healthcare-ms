@@ -118,19 +118,25 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
     const tableName = UsertableName;
     const currentUtcIso8601 = new Date().toISOString();
 
-    const commandsInput = usersInput.map(userInput => ({
-        TableName: tableName,
-        Key: { id: userInput.id },
-        UpdateExpression: 'set #profileText = :profileText, updatedAt = :updatedAt',
-        ExpressionAttributeNames: {
-            '#profileText': 'profileText',
-        },
-        ExpressionAttributeValues: {
-            ':profileText': userInput.profileText,
-            ':updatedAt': currentUtcIso8601,
-        },
-        ReturnValues: 'ALL_NEW',
-    } as UpdateCommandInput));
+    const commandsInput = usersInput.map(userInput => {
+        const keys = (userInput.profileText? ['profileText']: []);
+        const updateExpression = 'set updatedAt = :updatedAt'
+            + keys.map(key => `, #${key} = :${key}`).join();
+        const expressionAttributeNames = keys.length > 0? keys.reduce((acc, key) => ({
+            ...acc, [`#${key}`]: `${key}`,
+        }), {}): undefined;
+        const expressionAttributeValues = keys.reduce((acc, key) => ({
+            ...acc, [`:${key}`]: userInput.profileText,
+        }), {':updatedAt': currentUtcIso8601});
+        return {
+            TableName: tableName,
+            Key: { id: userInput.id },
+            UpdateExpression: updateExpression,
+            ExpressionAttributeNames: expressionAttributeNames,
+            ExpressionAttributeValues: expressionAttributeValues,
+            ReturnValues: 'ALL_NEW',
+        } as UpdateCommandInput
+    });
     const promises = commandsInput
         .map(commandInput => new UpdateCommand(commandInput))
         .map(command => dynamoDB.send(command).then(response => response.Attributes))

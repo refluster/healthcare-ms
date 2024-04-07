@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
-import { User } from '../models/user';
+import { UserProfile } from '../models';
 import { createUsers, deleteUsers, patchUsers, queryUsers } from '../database/dynamoDB';
 
 export const postUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     console.log('create users', event);
-    const usersInput: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
+    const usersInput: Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
 
     if (!usersInput || usersInput.length === 0) {
       return errorResponse(400, 'User data is required');
@@ -27,8 +27,8 @@ export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIG
     return successResponse(400, { message: '"userId" is required as a query parameter' });
   }
   try {
-    const works = await queryUsers({ id });
-    return successResponse(201, works);
+    const users = await queryUsers({ id });
+    return successResponse(201, users);
   } catch (e: any) {
     console.log('ERROR', e.message);
     return successResponse(500, { message: 'Service side error: ' + e.message });
@@ -37,7 +37,7 @@ export const getUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIG
 
 export const patchUsersHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const usersInput: Omit<User, 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
+    const usersInput: Omit<UserProfile, 'createdAt' | 'updatedAt'>[] = JSON.parse(event.body || '{}');
 
     if (!Array.isArray(usersInput) || usersInput.length === 0) {
       return errorResponse(400, 'User data array is required in the request body');

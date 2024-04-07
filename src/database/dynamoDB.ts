@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, UpdateCommand, DeleteCommand, QueryCommandInput, QueryCommand, UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../models/user';
+import { UserProfile } from '../models';
 import { Journal } from '../models/journal';
 import { DailyStat } from '../models/daily';
 import { endOfDay, format, startOfDay } from 'date-fns';
@@ -67,10 +67,10 @@ export const queryJournals = async (query: JournalQueryParams): Promise<Journal[
     }
 };
 
-export const createUsers = async (usersInput: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<User[]> => {
+export const createUsers = async (usersInput: Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<UserProfile[]> => {
     const tableName = UsertableName;
     const currentUtcIso8601 = new Date().toISOString();
-    const users: User[] = usersInput.map(userInput => {
+    const users: UserProfile[] = usersInput.map(userInput => {
         const newUser = {
             ...userInput,
             id: uuidv4(),
@@ -94,7 +94,7 @@ export const createUsers = async (usersInput: Omit<User, 'id' | 'createdAt' | 'u
     return users;
 };
 
-export const queryUsers = async ({ id }: { id?: string }): Promise<User[]> => {
+export const queryUsers = async ({ id }: { id?: string }): Promise<UserProfile[]> => {
     const tableName = UsertableName;
     const params = {
         TableName: tableName,
@@ -106,7 +106,7 @@ export const queryUsers = async ({ id }: { id?: string }): Promise<User[]> => {
         if (!Items) {
             throw new Error('Failed to query items from DynamoDB');
         }
-        const users = Items as User[];
+        const users = Items as UserProfile[];
         return users;
     } catch (error: any) {
         console.log("DynamoDB query error:", error.message);
@@ -114,7 +114,7 @@ export const queryUsers = async ({ id }: { id?: string }): Promise<User[]> => {
     }
 };
 
-export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt'>[]): Promise<User[]> => {
+export const patchUsers = async (usersInput: Omit<UserProfile, 'createdAt' | 'updatedAt'>[]): Promise<UserProfile[]> => {
     const tableName = UsertableName;
     const currentUtcIso8601 = new Date().toISOString();
 
@@ -141,10 +141,10 @@ export const patchUsers = async (usersInput: Omit<User, 'createdAt' | 'updatedAt
         .map(commandInput => new UpdateCommand(commandInput))
         .map(command => dynamoDB.send(command).then(response => response.Attributes))
     const updatedUsers = await Promise.all(promises);
-    return updatedUsers.filter(user => user !== null) as User[];
+    return updatedUsers.filter(user => user !== null) as UserProfile[];
 };
 
-export const deleteUsers = async (users: Pick<User, 'id'>[]): Promise<string[]> => {
+export const deleteUsers = async (users: Pick<UserProfile, 'id'>[]): Promise<string[]> => {
     const tableName = UsertableName;
     const commandsInput = users.map(user => ({
         TableName: tableName,

@@ -1,11 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { errorResponse, successResponse } from '../utils/response';
 import { Journal } from '../models/journal';
-import { createDailyStats, createJournals, deleteDailyStats, queryDailyStats, queryJournals } from '../database/dynamoDB';
+import { createDailyStats, createJournals, deleteDailyStats, queryDailyStats, queryJournals, queryUsers } from '../database/dynamoDB';
 import { DailyStat } from '../models/daily';
 import { endOfDay, format, startOfDay } from 'date-fns';
 import { text2wellness, text2wellnessApp } from '../lib/openai';
 import { getAppDef } from '../lib/app-db';
+import { UserProfile } from '../models';
 
 type App = {
   appId: string;
@@ -41,6 +42,8 @@ export const runAppHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
       return successResponse(400, { message: 'appId is not valid' });
     }
     const appContent = appDef.appContent;
+    const userProfile = (await queryUsers({id: userId}))[0];
+    const userContent = setUserContent(userProfile);
     const appRes = await text2wellnessApp({
       systemContent: baseContent + appContent,
       userContent: param.message,
@@ -52,3 +55,10 @@ export const runAppHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     return successResponse(500, { message: 'Service side error: ' + e.message });
   }
 };
+
+const setUserContent = (userProfile: UserProfile | undefined) => {
+  if (!userProfile) {
+    return '';
+  }
+  return '私の次のプロファイルも考慮して。' + userProfile.profileText;
+}

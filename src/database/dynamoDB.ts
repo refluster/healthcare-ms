@@ -119,7 +119,7 @@ export const patchUsers = async (usersInput: Omit<UserProfile, 'createdAt' | 'up
     const currentUtcIso8601 = new Date().toISOString();
 
     const commandsInput = usersInput.map(userInput => {
-        const keys = (userInput.profileText? ['profileText']: []);
+        const keys = (userInput.profileText !== undefined? ['profileText']: []);
         const updateExpression = 'set updatedAt = :updatedAt'
             + keys.map(key => `, #${key} = :${key}`).join();
         const expressionAttributeNames = keys.length > 0? keys.reduce((acc, key) => ({

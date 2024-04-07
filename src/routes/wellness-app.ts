@@ -45,7 +45,12 @@ export const runAppHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     const userProfile = (await queryUsers({id: userId}))[0];
     const userContent = setUserContent(userProfile);
     const appRes = await text2wellnessApp({
-      systemContent: baseContent + appContent,
+      systemContent: baseContent + appContent + userContent,
+      userContent: param.message,
+      function: appDef.function,
+    })
+    console.log({
+      systemContent: baseContent + appContent + userContent,
       userContent: param.message,
       function: appDef.function,
     })
@@ -57,7 +62,7 @@ export const runAppHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 };
 
 const setUserContent = (userProfile: UserProfile | undefined) => {
-  if (!userProfile) {
+  if (!userProfile || !userProfile.profileText) {
     return '';
   }
   return '私の次のプロファイルも考慮して。' + userProfile.profileText;

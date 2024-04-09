@@ -261,6 +261,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref HealthcareAppTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HealthcareUserTable
       Events:
         RunApp:
           Type: Api

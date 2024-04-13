@@ -57,12 +57,13 @@ export const getDailyStatsHandler = async (event: APIGatewayProxyEvent): Promise
   const userId = queryParameters.userId;
   const startDate = queryParameters.startDate;
   const endDate = queryParameters.endDate;
+  const limit = Number(queryParameters.limit) || 12;
   if (!userId || !startDate || !endDate) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
   try {
-    const journals = await queryDailyStats({ userId, startDate, endDate });
-    return successResponse(201, journals);
+    const stats = await queryDailyStats({ userId, startDate, endDate, limit });
+    return successResponse(201, stats);
   } catch (e: any) {
     console.log('ERROR', e.message);
     return successResponse(500, { message: 'Service side error: ' + e.message });

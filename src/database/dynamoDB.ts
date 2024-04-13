@@ -38,6 +38,7 @@ type JournalQueryParams = {
     userId: string;
     startDate?: string;
     endDate?: string;
+    limit?: number;
 }
 export const queryJournals = async (query: JournalQueryParams): Promise<Journal[]> => {
     const tableName = JournalTableName;
@@ -50,7 +51,7 @@ export const queryJournals = async (query: JournalQueryParams): Promise<Journal[
             ":startDate": query.startDate || '2000-01-01T00:00:00.000Z',
             ":endDate": query.endDate || '2100-01-01T00:00:00.000Z',
         },
-        Limit: 12,
+        Limit: query.limit || 12,
         ScanIndexForward: false,
     };
     console.log(params);
@@ -189,6 +190,7 @@ type DailyStatsQueryParam = {
     userId: string;
     startDate: string;
     endDate: string;
+    limit?: number;
 }
 export const queryDailyStats = async (query: DailyStatsQueryParam): Promise<DailyStat[]> => {
     const tableName = dailyStatsTableName;
@@ -204,7 +206,7 @@ export const queryDailyStats = async (query: DailyStatsQueryParam): Promise<Dail
         ExpressionAttributeNames: {
             "#date": "date"
         },
-        Limit: 12,
+        Limit: query.limit || 12,
         ScanIndexForward: false,
     };
     console.log(params);
@@ -228,10 +230,9 @@ type DailyStatsDeleteParam = {
 }
 export const deleteDailyStats = async (query: DailyStatsDeleteParam): Promise<undefined> => {
     const tableName = dailyStatsTableName;
-    const items = await queryDailyStats(query);
 
     try {
-        const items = await queryDailyStats(query);
+        const items = await queryDailyStats({...query, limit: 30});
         for (const item of items) {
             const deleteCommand = new DeleteCommand({
                 TableName: tableName,

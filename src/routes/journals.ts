@@ -27,11 +27,12 @@ export const getJournalsHandler = async (event: APIGatewayProxyEvent): Promise<A
   const userId = queryParameters.userId || undefined;
   const startDate = queryParameters.startDate || undefined;
   const endDate = queryParameters.endDate || undefined;
+  const limit = Number(queryParameters.limit) || undefined;
   if (!userId) {
     return successResponse(400, { message: 'input query parameter is not valid' });
   }
   try {
-    const journals = await queryJournals({ userId, startDate, endDate });
+    const journals = await queryJournals({ userId, startDate, endDate, limit });
     return successResponse(201, journals);
   } catch (e: any) {
     console.log('ERROR', e.message);
@@ -55,8 +56,9 @@ export const updateJournalsHandler = async (event: APIGatewayProxyEvent): Promis
     console.log('ERROR', e.message);
     return errorResponse(500, 'Service side error: ' + e.message);
   }
-*/
   return successResponse(200, {});
+*/
+  return errorResponse(400, 'This API is currently not supported.');
 };
 
 export const deleteJournalsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -75,6 +77,7 @@ export const deleteJournalsHandler = async (event: APIGatewayProxyEvent): Promis
     console.log('ERROR', e.message);
     return successResponse(500, { message: 'Service side error: ' + e.message });
   }
-*/
   return successResponse(200, {});
+*/
+  return errorResponse(400, 'This API is currently not supported.');
 };
